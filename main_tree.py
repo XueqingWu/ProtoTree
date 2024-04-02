@@ -60,8 +60,10 @@ def run_tree(args=None):
                     add_on_layers = add_on_layers)
     tree = tree.to(device=device)
     # Determine which optimizer should be used to update the tree parameters
+    # initializes an optimizer and a scheduler for updating the tree parameters
     optimizer, params_to_freeze, params_to_train = get_optimizer(tree, args)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer, milestones=args.milestones, gamma=args.gamma)
+    
     tree, epoch = init_tree(tree, optimizer, scheduler, device, args)
     
     tree.save(f'{log.checkpoint_dir}/tree_init')
@@ -72,6 +74,7 @@ def run_tree(args=None):
     best_train_acc = 0.
     best_test_acc = 0.
 
+    # trains the tree for a specified number of epochs, evaluateing its performace on the test set periodically
     if epoch < args.epochs + 1:
         '''
             TRAIN AND EVALUATE TREE
@@ -128,6 +131,7 @@ def run_tree(args=None):
     '''
         PRUNE
     '''
+    # optionally prune the tree based on a pruning threshold
     pruned = prune(tree, args.pruning_threshold_leaves, log)
     name = "pruned"
     save_tree_description(tree, optimizer, scheduler, name, log)
@@ -143,10 +147,13 @@ def run_tree(args=None):
     '''
         PROJECT
     '''
+    # project the pruned trees with class constraints
     project_info, tree = project_with_class_constraints(deepcopy(pruned_tree), projectloader, device, args, log)
     name = "pruned_and_projected"
     save_tree_description(tree, optimizer, scheduler, name, log)
     pruned_projected_tree = deepcopy(tree)
+
+    # Evaluate the pruned and projected trees' performace
     # Analyse and evaluate pruned tree with projected prototypes
     average_distance_nearest_image(project_info, tree, log)
     leaf_labels = analyse_leafs(tree, epoch+3, len(classes), leaf_labels, args.pruning_threshold_leaves, log)
@@ -154,11 +161,16 @@ def run_tree(args=None):
     eval_info = eval(tree, testloader, name, device, log)
     pruned_projected_test_acc = eval_info['test_accuracy']
     eval_info_samplemax = eval(tree, testloader, name, device, log, 'sample_max')
+
+    
     get_avg_path_length(tree, eval_info_samplemax, log)
     eval_info_greedy = eval(tree, testloader, name, device, log, 'greedy')
     get_avg_path_length(tree, eval_info_greedy, log)
     fidelity_info = eval_fidelity(tree, testloader, device, log)
 
+    '''
+        PVisualization of Trees
+    '''
     # Upsample prototype for visualization
     project_info = upsample(tree, project_info, projectloader, name, args, log)
     # visualize tree
