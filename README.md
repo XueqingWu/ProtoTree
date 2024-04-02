@@ -13,6 +13,8 @@ Figure shows an example of a ProtoTree. A ProtoTree is a globally interpretable 
 * [PyTorch](https://pytorch.org/get-started/locally/) >= 1.5 and <= 1.7!
 * Optional: CUDA
 
+## Environment Preparation
+
 ### Required Python Packages:
 * numpy
 * pandas
@@ -22,6 +24,7 @@ Figure shows an example of a ProtoTree. A ProtoTree is a globally interpretable 
 * matplotlib
 * requests (to download the CARS dataset, or download it manually)
 * gdown (to download the CUB dataset, or download it manually)
+
 
 ## Data
 The code can be applied to the [CUB-200-2011](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) dataset with 200 bird species, or the [Stanford Cars](https://ai.stanford.edu/~jkrause/cars/car_dataset.html) dataset with 196 car types. 
@@ -57,3 +60,5 @@ A trained ProtoTree is intrinsically interpretable and globally explainable. It 
 `main_explain_local.py --log_dir ./runs/protoree_cars --dataset CARS --sample_dir ./data/cars/dataset/test/Dodge_Sprinter_Cargo_Van_2009/04003.jpg --prototree ./runs/protoree_cars/checkpoints/pruned_and_projected`
 
 In the folder `--log_dir` `/local_explanations`, the visualized local explanation is saved in `predvis.pdf`.
+
+
